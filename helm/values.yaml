@@ -1,0 +1,38 @@
+service:
+  name: frontend
+image:
+  repository: 952893849914.dkr.ecr.us-east-1.amazonaws.com/aicares-application/frontend
+containerPort: 8080
+resources:
+  limits:
+    memory: "250Mi"
+  requests:
+    memory: "64Mi"
+    cpu: "100m"
+env:
+  - name: PORT
+    value: "8080"
+  - name: AD_ADDR
+    value: "ad:9555"
+  - name: CART_ADDR
+    value: "cart:7070"
+  - name: CHECKOUT_ADDR
+    value: "checkout:5050"
+  - name: CURRENCY_ADDR
+    value: "currency:7001"
+  - name: PRODUCT_CATALOG_ADDR
+    value: "product-catalog:3550"
+  - name: PRODUCT_REVIEWS_ADDR
+    value: "product-reviews:3551"
+  - name: RECOMMENDATION_ADDR
+    value: "recommendation:9001"
+  - name: SHIPPING_ADDR
+    value: "http://shipping:50050"
+  - name: OTEL_SERVICE_NAME
+    value: "frontend"
+  - name: OTEL_EXPORTER_OTLP_ENDPOINT
+    value: "http://otel-collector:4317"
+  - name: PUBLIC_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
+    value: "/otlp-http/v1/traces"
+nodeSelector:
+  eks.amazonaws.com/nodegroup: graviton-workers
