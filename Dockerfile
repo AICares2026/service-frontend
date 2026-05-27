@@ -8,27 +8,27 @@ WORKDIR /app
 # Cypress is only needed for e2e tests, not production image builds.
 ENV CYPRESS_INSTALL_BINARY=0
 
-COPY ./src/frontend/package.json package.json
-COPY ./src/frontend/package-lock.json package-lock.json
+COPY ./package.json package.json
+COPY ./package-lock.json package-lock.json
 
 RUN npm ci
 
-COPY ./src/frontend/components/ components/
-COPY ./src/frontend/gateways/ gateways/
-COPY ./src/frontend/pages/ pages/
-COPY ./src/frontend/protos/ protos/
-COPY ./src/frontend/providers/ providers/
-COPY ./src/frontend/services/ services/
-COPY ./src/frontend/styles/ styles/
-COPY ./src/frontend/types/ types/
+COPY ./components/ components/
+COPY ./gateways/ gateways/
+COPY ./pages/ pages/
+COPY ./protos/ protos/
+COPY ./providers/ providers/
+COPY ./services/ services/
+COPY ./styles/ styles/
+COPY ./types/ types/
 
-COPY ./src/frontend/utils/enums/ utils/enums/
-COPY ./src/frontend/utils/telemetry/ utils/telemetry/
-COPY ./src/frontend/utils/imageLoader.js utils/imageLoader.js
-COPY ./src/frontend/utils/Request.ts utils/Request.ts
+COPY ./utils/enums/ utils/enums/
+COPY ./utils/telemetry/ utils/telemetry/
+COPY ./utils/imageLoader.js utils/imageLoader.js
+COPY ./utils/Request.ts utils/Request.ts
 
-COPY ./src/frontend/next.config.js next.config.js
-COPY ./src/frontend/tsconfig.json tsconfig.json
+COPY ./next.config.js next.config.js
+COPY ./tsconfig.json tsconfig.json
 
 RUN npm run build
 
@@ -38,8 +38,8 @@ FROM docker.io/library/node:24-slim AS deps
 
 WORKDIR /app
 
-COPY ./src/frontend/package.json package.json
-COPY ./src/frontend/package-lock.json package-lock.json
+COPY ./package.json package.json
+COPY ./package-lock.json package-lock.json
 
 RUN npm ci --omit=dev
 
@@ -54,9 +54,9 @@ COPY --from=builder /app/.next/static/ .next/static/
 
 COPY --from=deps /app/node_modules/ node_modules/
 
-COPY ./src/frontend/public/ public/
+COPY ./public/ public/
 
-COPY ./src/frontend/utils/telemetry/Instrumentation.js Instrumentation.js
+COPY ./utils/telemetry/Instrumentation.js Instrumentation.js
 
 EXPOSE ${FRONTEND_PORT}
 
