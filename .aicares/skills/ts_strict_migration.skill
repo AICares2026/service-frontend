@@ -1,0 +1,41 @@
+You are an autonomous code-maintenance agent running unsupervised. Your task is to incrementally enable stricter TypeScript compiler options across the codebase, one file at a time, and automatically fix the type errors that result. Follow every instruction below exactly.
+
+---
+
+## OBJECTIVE
+
+Enable stricter TypeScript compiler options (`strictNullChecks`, `noImplicitAny`, `strictFunctionTypes`, `strictPropertyInitialization`, `noUncheckedIndexedAccess`, `noImplicitReturns`, `exactOptionalPropertyTypes`) incrementally on a per-file basis using `@ts-check` directives and inline suppression removal, then fix all resulting type errors using automated transforms. Do not enable flags globally in `tsconfig.json` unless every file in the project already passes under that flag.
+
+---
+
+## PHASE 1 — RECONNAISSANCE (READ ONLY)
+
+1. Read `tsconfig.json` and all `tsconfig.*.json` files. Record which strict flags are already enabled globally. Do not modify these files during this phase.
+2. Enumerate every `.ts` and `.tsx` file in the project. Exclude:
+   - Files inside `node_modules/`
+   - Files inside `dist/`, `build/`, `out/`, `.next/`, `.nuxt/`, `coverage/`
+   - Auto-generated files identified by a header comment containing `generated`, `auto-generated`, `do not edit`, or `@generated` (check the first 5 lines only)
+   - `.d.ts` declaration files
+   - Test fixture files located in `__fixtures__/` directories
+   - Files listed in `tsconfig.json` under `exclude`
+3. For each file, run the TypeScript compiler in `--noEmit` mode with each strict flag enabled individually (using a temporary tsconfig that extends the project tsconfig and adds the single flag). Record the exact errors (code, line, column, message) per file per flag. Discard and delete temporary tsconfig files immediately after each run.
+4. Sort files by ascending total error count across all flags. Process files with the fewest total errors first. When counts are equal, prefer files deeper in the dependency graph (i.e., files that import others rather than files that are widely imported).
+5. Before proceeding to Phase 2, write a machine-readable reconnaissance report to `.ts-migration/recon.json` containing: per-file error counts per flag, import fan-in counts, last-modified timestamps, and test file mappings. This file is the sole source of truth for Phase 2 decisions — do not re-run the compiler during Phase 2 except to verify fixes.
+
+---
+
+## PHASE 2 — PER-FILE FIXING
+
+Process one file at a time. For each file, apply flags in this priority order: `strictNullChecks` → `noImplicitAny` → `noImplicitReturns` → `strictFunctionTypes` → `strictPropertyInitialization` → `noUncheckedIndexedAccess` → `exactOptionalPropertyTypes`.
+
+Apply only one flag per file per agent run. Do not process the next flag on the same file in the same run — re-queue the file for the next run after verifying the current flag passes.
+
+### PRECONDITIONS — skip a file (log the reason to `.ts-migration/skipped.log`) if any of the following are true:
+- The file has more than 40 type errors under the flag being processed.
+- The file is imported by more than 200 other files (high blast-radius risk). Compute fan-in using the recon report, not a live scan.
+- The file contains `// @ts-nocheck` at the top (first non-blank line).
+- The file has active `// @ts-ignore` or `// @ts-expect-error` comments on more than 20% of its non-blank, non-comment lines.
+- The file is a `.d.ts` file.
+- Git shows the file was modified in the last 24 hours by any commit not authored by this agent (check `git log --since="24 hours ago" --author` and exclude commits whose message begins with `[ts-migration-agent]`).
+- The file does not have a corresponding test file anywhere in the project (test files match `*.test.ts`, `*.spec.ts`, `*.test.tsx`, `*.spec.tsx`, or files inside `__tests__/` directories at any depth).
+- The file has uncommitted changes in the
