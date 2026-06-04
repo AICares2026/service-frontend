@@ -3,10 +3,6 @@ service:
 image:
   repository: 952893849914.dkr.ecr.us-east-1.amazonaws.com/aicares-application/frontend
 containerPort: 8080
-command:
-  - node
-  - -e
-  - process.exit(1)
 resources:
   limits:
     memory: "250Mi"
