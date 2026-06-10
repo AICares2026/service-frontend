@@ -42,10 +42,12 @@ const ProductAIAssistantProvider = ({ children, productId }: ProductAIAssistantP
         mutationFn: ({ question }) => ApiGateway.askProductAIAssistant(productId, question),
     });
 
+    const { reset: mutationReset, mutate: mutationMutate } = mutation;
+
     // Clear AI state when switching products.
     useEffect(() => {
-        mutation.reset();
-    }, [productId]);
+        mutationReset();
+    }, [productId, mutationReset]);
 
     const value = useMemo(
         () => ({
@@ -56,11 +58,11 @@ const ProductAIAssistantProvider = ({ children, productId }: ProductAIAssistantP
                 payload: AiRequestPayload,
                 options?: MutateOptions<AiResponse, Error, AiRequestPayload, unknown>
             ) => {
-                mutation.mutate(payload, options);
+                mutationMutate(payload, options);
             },
-            reset: () => mutation.reset(),
+            reset: mutationReset,
         }),
-        [mutation.data, mutation.isPending, mutation.error]
+        [mutation.data, mutation.isPending, mutation.error, mutationMutate, mutationReset]
     );
 
     return <Context.Provider value={value}>{children}</Context.Provider>;

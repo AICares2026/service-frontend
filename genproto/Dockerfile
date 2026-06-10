@@ -14,3 +14,5 @@ COPY ./src/frontend/package.json package.json
 COPY ./src/frontend/package-lock.json package-lock.json
 
 RUN npm ci
+
+USER node

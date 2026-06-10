@@ -26,11 +26,7 @@ interface IProps {
     productId: string;
 }
 
-//export const useProductReview = () => useContext(Context);
-export const useProductReview = () => {
-    const value = useContext(Context);
-    return value;
-};
+export const useProductReview = () => useContext(Context);
 
 const ProductReviewProvider = ({ children, productId }: IProps) => {
     const {
