@@ -13,13 +13,12 @@ export class SessionIdProcessor implements SpanProcessor {
         return Promise.resolve();
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    onStart(span: Span, parentContext: Context): void {
+    onStart(span: Span, _parentContext: Context): void {
         span.setAttribute(AttributeNames.SESSION_ID, userId);
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
-    onEnd(span: ReadableSpan): void {}
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    onEnd(_span: ReadableSpan): void {}
 
     shutdown(): Promise<void> {
         return Promise.resolve();

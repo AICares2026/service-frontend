@@ -60,4 +60,6 @@ COPY ./utils/telemetry/Instrumentation.js Instrumentation.js
 
 EXPOSE ${FRONTEND_PORT}
 
+USER nonroot
+
 CMD ["--require=./Instrumentation.js", "server.js"]
