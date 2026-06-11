@@ -11,8 +11,8 @@ Never modify:
 - `tsconfig.json` base compiler options unless performing `ts_strict_migration` work
 
 ## Conventions
-- Source lives under `src/`; tests are co-located or under `__tests__/` — confirm actual layout before adding files
-- Test files follow `*.test.ts` or `*.spec.ts` naming
+- Source lives at the repo root (`components/`, `pages/`, `gateways/`, `providers/`, `services/`, `styles/`, `types/`, `utils/`) — there is no `src/` subdirectory
+- E2E tests live under `cypress/e2e/` and follow `*.cy.ts` naming; there are no unit test files (`*.test.ts` / `*.spec.ts`) in this repo
 - Exports should be explicit; avoid barrel re-exports unless the pattern already exists in the file being modified
 - Dead code removal: only delete exports confirmed unreferenced across the entire repo, not just the current file
 - TypeScript strict flags are being incrementally enabled — do not loosen existing strict settings
