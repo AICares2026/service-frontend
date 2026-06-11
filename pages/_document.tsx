@@ -66,6 +66,8 @@ export default class MyDocument extends Document<{ envString: string }> {
     return (
       <Html>
         <Head>
+          <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';" />
+          <meta name="referrer" content="strict-origin-when-cross-origin" />
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
           <link

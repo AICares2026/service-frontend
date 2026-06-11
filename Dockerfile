@@ -49,6 +49,8 @@ FROM gcr.io/distroless/nodejs24-debian13:nonroot
 
 WORKDIR /app
 
+USER nonroot
+
 COPY --from=builder /app/.next/standalone/ ./
 COPY --from=builder /app/.next/static/ .next/static/
 
