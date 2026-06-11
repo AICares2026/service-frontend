@@ -49,8 +49,8 @@ const CheckoutForm = ({ onSubmit }: IProps) => {
     state: 'CA',
     country: 'United States',
     zipCode: "94043",
-    creditCardNumber: '4432-8015-6152-0454',
-    creditCardCvv: 672,
+    creditCardNumber: '',
+    creditCardCvv: 0,
     creditCardExpirationYear: 2030,
     creditCardExpirationMonth: 1,
   });
