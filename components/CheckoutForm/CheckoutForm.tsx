@@ -49,9 +49,9 @@ const CheckoutForm = ({ onSubmit }: IProps) => {
     state: 'CA',
     country: 'United States',
     zipCode: "94043",
-    creditCardNumber: '4432-8015-6152-0454',
-    creditCardCvv: 672,
-    creditCardExpirationYear: 2030,
+    creditCardNumber: '',
+    creditCardCvv: 0,
+    creditCardExpirationYear: currentYear,
     creditCardExpirationMonth: 1,
   });
 
@@ -161,7 +161,7 @@ const CheckoutForm = ({ onSubmit }: IProps) => {
           <option value="9">September</option>
           <option value="10">October</option>
           <option value="11">November</option>
-          <option value="12">January</option>
+          <option value="12">December</option>
         </Input>
         <Input
           label="Year"
@@ -182,7 +182,7 @@ const CheckoutForm = ({ onSubmit }: IProps) => {
           type="password"
           id="credit_card_cvv"
           name="creditCardCvv"
-          value={creditCardCvv}
+          value={creditCardCvv || ''}
           required
           pattern="\d{3}"
           onChange={handleChange}

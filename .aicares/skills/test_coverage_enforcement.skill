@@ -1,0 +1,55 @@
+You are an autonomous code-maintenance agent running unsupervised. Your task is to identify TypeScript source files under `src/` that lack test coverage and generate meaningful skeleton test stubs for them. Follow every instruction below precisely.
+
+---
+
+## OBJECTIVE
+
+Scan the repository for TypeScript source files under `src/` that have no associated test file. For each untested file, generate a co-located `*.test.ts` stub that includes basic smoke tests and unit test skeletons covering the file's exported members.
+
+---
+
+## STEP 1 — DISCOVER UNTESTED SOURCE FILES
+
+A source file is a candidate if ALL of the following are true:
+
+1. It lives anywhere under `src/` (recursively).
+2. Its filename matches `*.ts` but does NOT match `*.test.ts`, `*.spec.ts`, `*.d.ts`, `*.stories.ts`, or `*.config.ts`.
+3. It is not an index barrel file whose only content is `export * from` or `export { ... } from` re-exports with no logic of its own. Concretely: after stripping comments and blank lines, every remaining statement must be an `export ... from` statement for the file to be considered a pure barrel.
+4. No corresponding test file exists. A test file is considered to exist if any of the following paths are present relative to the same directory:
+   - `<basename>.test.ts`
+   - `<basename>.spec.ts`
+   - `__tests__/<basename>.test.ts`
+   - `__tests__/<basename>.spec.ts`
+   - `<basename>.test.tsx`
+   - `<basename>.spec.tsx`
+   - `__tests__/<basename>.test.tsx`
+   - `__tests__/<basename>.spec.tsx`
+5. The file contains at least one exported symbol (function, class, const, let, enum, interface, or type). Files with zero exports are skipped.
+6. The file is not listed in any coverage exclusion pattern found in the project's Jest/Vitest configuration (`coveragePathIgnorePatterns`, `exclude`, `coverageExclude`, etc.). If a file would be excluded from coverage reporting, skip it.
+
+---
+
+## STEP 2 — ANALYSE EACH CANDIDATE FILE
+
+Before generating a stub, parse the candidate file and collect:
+
+- **Named exports**: every `export function`, `export class`, `export const`, `export let`, `export enum`, `export interface`, `export type`. Also detect re-exported names via `export { foo }` (without `from`) that reference a symbol defined in the same file.
+- **Default export**: whether a default export exists and what kind it is (function, class, object, primitive value). If the default export is an anonymous arrow function or object literal, note that.
+- **Constructor parameters** (for classes): parameter names and whether they have TypeScript types. Note any required vs. optional parameters (i.e., parameters without a `?` or default value are required).
+- **Function signatures**: parameter names, types, and return type if annotated. Distinguish `void`/`Promise<void>` return types from value-returning functions. Note variadic (`...rest`) and optional parameters.
+- **Async functions**: flag any function declared `async` or returning `Promise<...>`. These require `await` in test bodies.
+- **Dependencies imported at the top level**: any `import` statements. Classify each as:
+  - **Node.js built-in** (e.g., `fs`, `path`, `crypto`, `node:*`) — mock only if the test requires isolation.
+  - **Relative import** pointing to another file in the repo — mock with `jest.mock`/`vi.mock` unless the dependency is a pure utility with no I/O or side effects and is simple enough to use directly.
+  - **Third-party package** (anything else) — always mock.
+- **Side effects at module scope**: any code that executes on `import` (e.g., `setInterval`, `process.on`, `fs.readFileSync` calls at the top level outside functions). Flag these; the stub must address module-level side effects with `beforeAll`/`afterAll` cleanup or by ensuring mocks are in place before the module is imported.
+
+---
+
+## STEP 3 — GENERATE THE TEST STUB
+
+Place the generated test file at `<same-directory-as-source>/<basename>.test.ts`.
+
+### 3.1 — File header
+
+```
